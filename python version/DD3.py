@@ -1,9 +1,11 @@
 import pygame
 
-AZURE = (193,205,205)
-BLACK = (  0,  0,  0)
-WHITE = (255,255,255)
-RED   = (255,  0,  0)
+AZURE  = ( 193, 205, 205)
+BLACK  = (   0,   0,   0)
+GREEN  = (   0, 255,   0)
+WHITE  = ( 255, 255, 255)
+RED    = ( 255,   0,   0)
+YELLOW = ( 255, 255,   0)
 
 class Widget_base:
     def __init__(self, color = None):
@@ -34,7 +36,7 @@ class Rectangle_base(Widget_base):
         self.y = self.y + self.vector[1]
 
 class Rectangle(Rectangle_base):
-    def __init__(self, x, y, width, height, color = None):
+    def __init__(self, x, y, width, height, color):
         self.width = width
         self.height = height
         return super().__init__(x, y, color)
@@ -67,25 +69,26 @@ class Text(Rectangle):
         print("TEXT:", self.text_value, self.x + i_x, self.y + i_y, self.width, self.height, self.color, self.vector)
 
 class Circle(Rectangle_base):
-    def __init__(self, x, y, radius, color = None):
+    def __init__(self, x, y, radius, color):
         self.radius = radius
         return super().__init__(x, y, color)
 
     def draw(self, i_x, i_y, surface):
         #print("CIRCLE   ", self.x + i_x, self.y + i_y, self.radius, self.color, self.vector)
-        pygame.draw.circle(surface, self.color, (self.x + i_x, self.y + i_y), self.radius)
+        pygame.draw.circle(surface, self.color, (round(self.x + i_x), round(self.y + i_y)), round(self.radius))
 
     def is_inside(self, i_x, i_y, pos_x, pos_y):
         return (pos_x-(self.x+i_x))**2 + (pos_y-(self.y+i_y))**2 < self.radius**2
 
 class Ellipse(Rectangle_base):
-    def __init__(self, x, y, radius_x, radius_y, color = None):
+    def __init__(self, x, y, radius_x, radius_y, color):
         self.radius_x = radius_x
         self.radius_y = radius_y
         return super().__init__(x, y, color)
 
-    def draw(self, i_x, i_y):
-        print("ELLIPSE  ", self.x+i_x, self.y+i_y, self.radius_x, self.radius_y, self.color, self.vector)
+    def draw(self, i_x, i_y, surface):
+        #print("ELLIPSE  ", self.x+i_x, self.y+i_y, self.radius_x, self.radius_y, self.color, self.vector)
+        pygame.draw.ellipse(surface, self.color, pygame.Rect(self.x+i_x-self.radius_x, self.y+i_y-self.radius_y, 2*self.radius_x, 2*self.radius_y))
 
     def is_inside(self, i_x, i_y, pos_x, pos_y):
         return (pos_x-(self.x+i_x))**2 / self.radius_x**2 + (pos_y-(self.y+i_y))**2 / self.radius_y**2 < 1
@@ -123,8 +126,13 @@ class All:
         self.clock = pygame.time.Clock()
 
         # USER DEFINED
-        self.layout = Layout(50, 50, [Layout(120, 20, [Rectangle(10, 10, 10, 10, WHITE), Circle(15, 50, 20, RED)]), Rectangle(0, 0, 100, 200, AZURE)])
+        self.layout = Layout(50, 50, [Layout(120, 20, 
+                                             [Rectangle(10, 10, 10, 10, WHITE), 
+                                              Circle(15, 50, 20, RED), 
+                                              Ellipse(10, 90, 20, 40, GREEN)]), 
+                                      Rectangle(0, 0, 100, 200, AZURE)])
         #self.layout[1].force([5, -2])
+        self.layout[0].force([0.07, 0])
 
     def event_handling(self):
         for event in pygame.event.get():
@@ -133,10 +141,19 @@ class All:
 
     def draw(self):
         self.layout.draw(0, 0, self.screen)
-        pygame.draw.rect(self.screen, WHITE, pygame.Rect(185, 120, 3, 3))
+        #pygame.draw.rect(self.screen, WHITE, pygame.Rect(180, 160, 3, 3))
+        pos = pygame.mouse.get_pos()
+        if (self.layout[0][1].is_inside(self.layout[0].x + self.layout.x, self.layout[0].y + self.layout.y, pos[0], pos[1])):
+            self.layout[0][1].color = AZURE
+        else:
+            self.layout[0][1].color = RED
+        if (self.layout[0][2].is_inside(self.layout[0].x + self.layout.x, self.layout[0].y + self.layout.y, pos[0], pos[1])):
+            self.layout[0][2].color = YELLOW
+        else:
+            self.layout[0][2].color = GREEN
 
     def update(self):
-        #self.layout[1].force([1, 0])
+        #self.layout[0].force([0.07, 0])
         self.layout.move()
 
     def run(self):
