@@ -100,6 +100,9 @@ class Layout(Widget_base):
         self.widgets = widgets
         return super().__init__(None)
 
+    def add(self, value):
+        self.widgets.append(value)
+
     def __getitem__(self, key):
         return self.widgets[key]
 
@@ -113,58 +116,78 @@ class Layout(Widget_base):
         for i in self.widgets:
             i.move()
 
-class All:
+class Paintware:
     def __init__(self):
         pygame.init()
         self.SCREEN_WIDTH = 500
         self.SCREEN_HEIGHT = 500
-        self.screen = pygame.display.set_mode([500, 500])
         self.caption = "PYGAME TEST"
-        pygame.display.set_caption(self.caption)
+        self.screen = pygame.display.set_mode([500, 500])
         self.running = True
         self.FPS = 24
         self.clock = pygame.time.Clock()
+        pygame.display.set_caption(self.caption)
+        self.mouse_x = -1
+        self.mouse_y = -1
+        self.click = False
 
-        # USER DEFINED
-        self.layout = Layout(50, 50, [Layout(120, 20, 
-                                             [Rectangle(10, 10, 10, 10, WHITE), 
-                                              Circle(15, 50, 20, RED), 
-                                              Ellipse(10, 90, 20, 40, GREEN)]), 
-                                      Rectangle(0, 0, 100, 200, AZURE)])
-        #self.layout[1].force([5, -2])
-        self.layout[0].force([0.07, 0])
+    def init(self):
+        pass
 
-    def event_handling(self):
+    def mouse_sensor_handling(self, x, y, click):
+        pass
+
+    def sensors_handling(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.click = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                self.click = False
+            self.mouse_x, self.mouse_y = pygame.mouse.get_pos()
+            self.mouse_sensor_handling(self.mouse_x, self.mouse_y, self.click)
 
     def draw(self):
+        self.screen.fill(BLACK)
         self.layout.draw(0, 0, self.screen)
-        #pygame.draw.rect(self.screen, WHITE, pygame.Rect(180, 160, 3, 3))
-        pos = pygame.mouse.get_pos()
-        if (self.layout[0][1].is_inside(self.layout[0].x + self.layout.x, self.layout[0].y + self.layout.y, pos[0], pos[1])):
-            self.layout[0][1].color = AZURE
-        else:
-            self.layout[0][1].color = RED
-        if (self.layout[0][2].is_inside(self.layout[0].x + self.layout.x, self.layout[0].y + self.layout.y, pos[0], pos[1])):
-            self.layout[0][2].color = YELLOW
-        else:
-            self.layout[0][2].color = GREEN
+        #pygame.draw.rect(self.screen, WHITE, pygame.Rect(150, 250, 3, 3))
 
     def update(self):
         #self.layout[0].force([0.07, 0])
         self.layout.move()
 
     def run(self):
+        self.init()
         while self.running:
-            self.event_handling()
+            self.sensors_handling()
             self.update()
-            self.screen.fill(BLACK)
             self.draw()
             pygame.display.flip()
             self.clock.tick(self.FPS)
+        pygame.display.quit()
         pygame.quit()
 
+class DD3(Paintware):
+    def init(self):
+        self.layout = Layout(50, 50, [Layout(120, 20, 
+                                             [Rectangle(10, 10, 10, 10, WHITE), 
+                                              Circle(15, 50, 20, RED), 
+                                              Ellipse(10, 90, 20, 40, GREEN)]), 
+                                      Rectangle(0, 0, 100, 200, AZURE)])
+        #self.layout[1].force([5, -2])
+        self.layout[0].force([1, 0])
+
+    def mouse_sensor_handling(self, x, y, click):
+        if (self.layout[0][1].is_inside(self.layout[0].x + self.layout.x, self.layout[0].y + self.layout.y, x, y)):
+            self.layout[0][1].color = AZURE
+        else:
+            self.layout[0][1].color = RED
+        if (self.layout[0][2].is_inside(self.layout[0].x + self.layout.x, self.layout[0].y + self.layout.y, x, y) and click):
+            self.layout[0][2].color = YELLOW
+        else:
+            self.layout[0][2].color = GREEN
+            
+
 if __name__ == "__main__":
-    All().run()
+    DD3().run()
