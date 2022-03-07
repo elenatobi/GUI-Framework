@@ -25,6 +25,21 @@ class Widget_base:
     def move(self):
         pass
 
+    def is_inside(self, i_x, i_y, pos_x, pos_y):
+        pass
+
+    def click_sensor(self):
+        pass
+
+    def release_sensor(self):
+        pass
+
+    def sensor(self, i_x, i_y, pos_x, pos_y):
+        if self.is_inside(self, i_x, i_y, pos_x, pos_y):
+            self.click_sensor()
+        else:
+            self.release_sensor()
+
 class Rectangle_base(Widget_base):
     def __init__(self, x, y, color = None):
         self.x = x
@@ -148,21 +163,14 @@ class Paintware:
             self.mouse_x, self.mouse_y = pygame.mouse.get_pos()
             self.mouse_sensor_handling(self.mouse_x, self.mouse_y, self.click)
 
-    def draw(self):
-        self.screen.fill(BLACK)
-        self.layout.draw(0, 0, self.screen)
-        #pygame.draw.rect(self.screen, WHITE, pygame.Rect(150, 250, 3, 3))
-
-    def update(self):
-        #self.layout[0].force([0.07, 0])
-        self.layout.move()
-
     def run(self):
         self.init()
         while self.running:
             self.sensors_handling()
-            self.update()
-            self.draw()
+            self.layout.move()
+            self.screen.fill(BLACK)
+            self.layout.draw(0, 0, self.screen)
+            #pygame.draw.rect(self.screen, WHITE, pygame.Rect(150, 250, 3, 3))
             pygame.display.flip()
             self.clock.tick(self.FPS)
         pygame.display.quit()
