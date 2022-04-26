@@ -1,0 +1,113 @@
+<body>
+<script>
+const LINE = 0;
+const RECT = 1;
+const TRIANGLE = 2;
+const POLYGON = 3;
+const CIRCLE = 4;
+const IMG = 5;
+const TXT = 6;
+const LAYOUT = 7;
+const LINEAR = 8;
+
+const SHAPE = 0;
+const X = 1;
+const Y = 2;
+const X1 = 3;
+const Y1 = 4;
+const X2 = 5;
+const Y2 = 6;
+const WIDTH = 3;
+const HEIGHT = 4;
+const RADIUS = 3;
+const CONTENT = 5;
+const WIDGETS = 5;
+
+const c = document.createElement("canvas");
+const ctx = c.getContext("2d");
+
+c.width = window.innerWidth - 1;
+c.height = window.innerHeight - 1;
+document.body.appendChild(c);
+document.body.style.margin = 0;
+
+function getEveryNth(arr, start, stop, nth) {
+  const result = [];
+  for (let i = start; i < stop; i += nth) {
+    result.push(arr[i]);
+  }
+  return result;
+}
+
+
+function getHeight(layout){
+    if (layout[SHAPE] == LINE || layout[SHAPE] == TRIANGLE || layout[SHAPE] == POLYGON){
+        return Math.max.apply(0, getEveryNth(layout, 2, layout.length-1, 2));
+    }
+    else if (layout[SHAPE] == RECT || layout[SHAPE] == IMG || layout[SHAPE] == TXT || layout[SHAPE] == LAYOUT || layout[SHAPE] == LINEAR){
+        return layout[Y] + layout[HEIGHT];
+    }
+    else if (layout[SHAPE] == CIRCLE){
+        return layout[Y] + layout[RADIUS];
+    }
+}
+
+function draw(layout, base = [0, 0]){
+    var [POS_X, POS_Y] = [layout[X] + base[0], layout[Y] + base[1]];
+    var COLOR = layout[layout.length-1];
+    if (typeof COLOR != "string"){
+        COLOR = "black";
+    }
+    if (layout[SHAPE] == LINE){
+        var [POS_X1, POS_Y1] = [layout[X1] + base[0], layout[Y1] + base[1]]
+        console.log("LINE", POS_X, POS_Y, POS_X1, POS_Y1, COLOR);
+    }
+    if (layout[SHAPE] == RECT){
+        console.log("RECT", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT], COLOR)
+    }
+    if (layout[SHAPE] == TRIANGLE){
+        var [POS_X1, POS_Y1] = [layout[X1] + base[0], layout[Y1] + base[1]]
+        var [POS_X2, POS_Y2] = [layout[X2] + base[0], layout[Y2] + base[1]]
+        console.log("TRIANGLE", POS_X, POS_Y, POS_X1, POS_Y1, POS_X2, POS_Y2, COLOR)
+    }
+    if (layout[SHAPE] == POLYGON){
+        POS_POINTS = [];
+        for (var i = X1; i < layout.length-1; i = i + 2){
+            POS_POINTS.push([layout[i] + base[0], layout[i+1] + base[1]])
+        }
+        console.log("LINE", POS_X, POS_Y, POS_POINTS, COLOR)
+    }
+    if (layout[SHAPE] == CIRCLE){
+        console.log("CIRCLE", POS_X, POS_Y, layout[RADIUS], COLOR)
+    }
+    if (layout[SHAPE] == IMG){
+        console.log("IMG", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT], layout[CONTENT])
+    }
+    if (layout[SHAPE] == TXT){
+        console.log("IMG", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT], layout[CONTENT], COLOR)
+    }
+    if (layout[SHAPE] == LAYOUT){
+        console.log("LAYOUT", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT]);
+        for (var i = 0; i < layout[WIDGETS].length; i++){
+            draw(layout[WIDGETS][i], [POS_X, POS_Y]);
+        }
+        console.log("END")
+        return;
+    }
+    if (layout[SHAPE] == LINEAR){
+        console.log("LINEAR", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT]);
+        base_line_y = 0;
+        for (var i = 0; i < layout[WIDGETS].length; i++){
+            draw(layout[WIDGETS][i], [POS_X, POS_Y + base_line_y]);
+            base_line_y = base_line_y + getHeight(layout[WIDGETS][i])
+        }
+        console.log("END")
+    }
+}
+
+var layout = [LINEAR, 1, 2, 50, 50, [[RECT, 2, 3, 7, 4], [RECT, 2, 1, 3, 3], [LAYOUT, 10, 10, 30, 30, [[RECT, 0, 0, 10, 10], [IMG, 20, 20, 10, 10, "a.png"]]], [LINE, 1, 2, 10, 14]]]
+
+draw(layout)
+
+</script>
+</body>

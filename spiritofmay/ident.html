@@ -1,0 +1,74 @@
+<script>
+var LINE = 0;
+var RECT = 1;
+var TRIANGLE = 2;
+var POLYGON = 3;
+var CIRCLE = 4;
+var IMG = 5;
+var TXT = 6;
+var LAYOUT = 7
+
+var SHAPE = 0;
+var X = 1;
+var Y = 2;
+var X1 = 3;
+var Y1 = 4;
+var X2 = 5;
+var Y2 = 6;
+var WIDTH = 3;
+var HEIGHT = 4;
+var RADIUS = 3;
+var CONTENT = 5;
+var WIDGETS = 3;
+
+function draw(layout, base = [0, 0]){
+    var [POS_X, POS_Y] = [layout[X] + base[0], layout[Y] + base[1]];
+    var COLOR = layout[layout.length-1];
+    if (typeof COLOR != "string"){
+        COLOR = "black";
+    }
+    if (layout[SHAPE] == LINE){
+        var [POS_X1, POS_Y1] = [layout[X1] + base[0], layout[Y1] + base[1]]
+        console.log("LINE", POS_X, POS_Y, POS_X1, POS_Y1, COLOR);
+    }
+    if (layout[SHAPE] == RECT){
+        console.log("RECT", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT], COLOR)
+    }
+    if (layout[SHAPE] == TRIANGLE){
+        var [POS_X1, POS_Y1] = [layout[X1] + base[0], layout[Y1] + base[1]]
+        var [POS_X2, POS_Y2] = [layout[X2] + base[0], layout[Y2] + base[1]]
+        console.log("TRIANGLE", POS_X, POS_Y, POS_X1, POS_Y1, POS_X2, POS_Y2, COLOR)
+    }
+    if (layout[SHAPE] == POLYGON){
+        POS_POINTS = [];
+        for (var i = X1; i < layout.length-1; i = i + 2){
+            POS_POINTS.push([layout[i] + base[0], layout[i+1] + base[1]])
+        }
+        console.log("LINE", POS_X, POS_Y, POS_POINTS, COLOR)
+    }
+    if (layout[SHAPE] == CIRCLE){
+        console.log("CIRCLE", POS_X, POS_Y, layout[RADIUS], COLOR)
+    }
+    if (layout[SHAPE] == IMG){
+        console.log("IMG", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT], layout[CONTENT])
+    }
+    if (layout[SHAPE] == TXT){
+        console.log("IMG", POS_X, POS_Y, layout[WIDTH], layout[HEIGHT], layout[CONTENT], COLOR)
+    }
+    if (layout[SHAPE] == LAYOUT){
+        console.log("LAYOUT", POS_X, POS_Y);
+        for (var i = 0; i < layout[WIDGETS].length; i++){
+            draw(layout[WIDGETS][i], [POS_X, POS_Y])
+        }
+        console.log("END")
+        return;
+    }
+}
+
+var layout = [LAYOUT, 2, 3, [[RECT, 2, 7, 5, 3, "red"], 
+                             [LINE, 2, 3, 5, 7, "green"],
+                             [LAYOUT, 15, 12, [[CIRCLE, 2, 1, 3, "yellow"]]],
+                             [RECT, 1, 20, 7, 22, "green"],
+                             [TRIANGLE, 3, 22, 9, 31, 11, 28, "blue"]]];
+draw(layout, [6, 9])
+</script>
