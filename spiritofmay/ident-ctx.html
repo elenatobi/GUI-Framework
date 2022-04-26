@@ -99,15 +99,20 @@ function draw(layout, base = [0, 0]){
         base_line_y = 0;
         for (var i = 0; i < layout[WIDGETS].length; i++){
             draw(layout[WIDGETS][i], [POS_X, POS_Y + base_line_y]);
-            base_line_y = base_line_y + getHeight(layout[WIDGETS][i])
+            base_line_y = base_line_y + getHeight(layout[WIDGETS][i]);
+            //console.log("height", getHeight(layout[WIDGETS][i]));
         }
         console.log("END")
     }
 }
 
-var layout = [LINEAR, 1, 2, 50, 50, [[RECT, 2, 3, 7, 4], [RECT, 2, 1, 3, 3], [LAYOUT, 10, 10, 30, 30, [[RECT, 0, 0, 10, 10], [IMG, 20, 20, 10, 10, "a.png"]]], [LINE, 1, 2, 10, 14]]]
+var layout = [LINEAR, 1, 2, 50, 50, [[RECT, 2, 3, 7, 4, "black"], 
+                                     [RECT, 2, 1, 3, 3, "red"], 
+                                     [LAYOUT, 10, 10, 30, 30, [[RECT, 0, 0, 10, 10, "purple"], 
+                                                               [IMG, 20, 20, 10, 10, "a.png"]]], 
+                                                               [LINE, 1, 2, 10, 14, "yellow"], 
+                                                               [TRIANGLE, 3, 4, 10, 9, 7, 3, "grey"]]]
 
 draw(layout)
-
 </script>
 </body>
