@@ -27,6 +27,35 @@ const HEIGHT = 3;
 
 const TEXT_SIZE = 2;
 
+function getBlockWidth(DOM: any[], base: [number, number, number, number] = [0, 0, 0, 0]){
+    if (DOM[WIDGET] == LINE){
+        return Math.max(...DOM[POS].filter(function(_: any, i: number){
+            return i % 2 == 0
+        }).map(function(e: number | string){
+            return pixelfy(e, base[WIDTH])
+        }))
+    }
+    else{
+        return pixelfy(DOM[POS][X], base[WIDTH]) + pixelfy(DOM[POS][WIDTH], base[WIDTH])
+    }
+}
+
+function getBlockHeight(DOM: any[], base: [number, number, number, number] = [0, 0, 0, 0]){
+    if (DOM[WIDGET] == LINE){
+        return Math.max(...DOM[POS].filter(function(_: any, i: number){
+            return i % 2 == 1
+        }).map(function(e: number | string){
+            return pixelfy(e, base[HEIGHT])
+        }))
+    }
+    else if (DOM[WIDGET] == CIRCLE){
+        return pixelfy(DOM[POS][Y], base[HEIGHT]) + pixelfy(DOM[POS][WIDTH], base[WIDTH]);
+    }
+    else{
+        return pixelfy(DOM[POS][Y], base[HEIGHT]) + pixelfy(DOM[POS][HEIGHT], base[HEIGHT]);
+    }
+}
+
 function pixelfy(value: number | string, other: number){
     if (typeof value === "string" && value[value.length-1] == "%"){
         value = Number(value.slice(0, -1)) / 100 * other;
@@ -58,7 +87,7 @@ function draw(DOM: any[], base: [number, number, number, number] = [0, 0, 0, 0])
             console.log("Line LineTo", xPos, yPos);
         }
     }
-    if (DOM[WIDGET] == RECT || DOM[WIDGET] == COORD){
+    if (DOM[WIDGET] == RECT || DOM[WIDGET] == COORD || DOM[WIDGET] == LINEAR){
         console.log("FillRect", xPos, yPos, width, height);
     }
     if (DOM[WIDGET] == CIRCLE){
@@ -68,21 +97,39 @@ function draw(DOM: any[], base: [number, number, number, number] = [0, 0, 0, 0])
         console.log("Draw Ellipse", xPos, yPos, width, height);
     }
     if (DOM[WIDGET] == TEXT){
-        console.log("Draw Text", xPos, yPos, DOM[POS][TEXT_SIZE], DOM[TEXT_STR])
+        console.log("Draw Text", xPos, yPos, DOM[POS][TEXT_SIZE], DOM[TEXT_STR]);
     }
     if (DOM[WIDGET] == IMG){
         console.log("Draw image", xPos, yPos, width, height, DOM[IMG_SRC]);
     }
     if (DOM[WIDGET] == COORD){
         for (let subDOM of DOM[DOM.length-1]){
-            draw(subDOM, [xPos, yPos, width, height])
+            draw(subDOM, [xPos, yPos, width, height]);
+        }
+    }
+    if (DOM[WIDGET] == LINEAR){
+        let yOffset = 0;
+        for (let subDOM of DOM[DOM.length-1]){
+            draw(subDOM, [xPos, yPos + yOffset, width, height])
+            yOffset = yOffset + getBlockHeight(subDOM, [xPos, yPos, width, height])
         }
     }
 }
 
 console.clear();
-let layout = [COORD, [5, 9, 203, 179], "orange", [
-    [RECT, [2, -8, "30%", "-40%"], "yellow"]
+
+
+let layout = [LINEAR, [5, 9, 203, 179], "orange", [
+    [RECT, [2, -8, "30%", "-40%"], "yellow"],
+    [CIRCLE, ["5%", 70, "20%"], "purple"],
+    [LINE, [3, -9, 2, "-8%", "31%", 17], "blue"],
+    [IMG, [-10, "9%", 7, 17], "a.png"],
+    [COORD, ["7%", 7, "50%", "50%"], "green", [
+        [RECT, [12, "2%", "3%", 4], "aquamarine"],
+        [LINE, [3, 8, "5%", "3%", "7%", 10], "marron"],
+        [IMG, [40, 5, 10, 10], "a.png"]
+    ]],
+    [CIRCLE, ["2%", "3%", 20], "red"]
 ]];
 
 draw(layout)
